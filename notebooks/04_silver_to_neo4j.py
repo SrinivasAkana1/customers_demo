@@ -6,8 +6,8 @@
 # MAGIC Re-runs use `MERGE`, so existing nodes are updated rather than duplicated. This notebook does not delete existing graph data.
 # MAGIC
 # MAGIC Before running:
-# MAGIC - Create a Databricks secret scope named `neo4j` with keys `uri`, `username`, and `password`.
-# MAGIC - Set `uri` to a Neo4j Aura endpoint reachable from Databricks. A Neo4j Desktop address such as `127.0.0.1` is local to your computer and is not reachable from the Databricks cluster.
+# MAGIC - Store the rotated Aura password in the Databricks secret scope `neo4j` under the key `password`.
+# MAGIC - This notebook uses the Aura endpoint and username configured below. A Neo4j Desktop address such as `127.0.0.1` is local to your computer and is not reachable from the Databricks cluster.
 # MAGIC - Run notebooks 01 and 02 first so the silver tables exist.
 # MAGIC
 # MAGIC Silver rows become `Customer`, `Agent`, `CallType`, `AgentEvent`, `Recovery`, and `Call` nodes.
@@ -29,9 +29,9 @@ from pyspark.sql import functions as F
 from customers_demo import config
 
 NEO4J_SCOPE = "neo4j"
-NEO4J_URI = dbutils.secrets.get(scope=NEO4J_SCOPE, key="uri")
-NEO4J_USERNAME = dbutils.secrets.get(scope=NEO4J_SCOPE, key="neo4j")
-NEO4J_PASSWORD = dbutils.secrets.get(scope=NEO4J_SCOPE, key="YFXTKpr4jtJTLd6rEa1z0TI3ic_xiWOyXNFmTAZhLbA")
+NEO4J_URI = "neo4j+s://f9a06d1f.databases.neo4j.io"
+NEO4J_USERNAME = "neo4j"
+NEO4J_PASSWORD = dbutils.secrets.get(scope=NEO4J_SCOPE, key="password")
 NEO4J_DATABASE = "neo4j"
 BATCH_SIZE = 1000
 
