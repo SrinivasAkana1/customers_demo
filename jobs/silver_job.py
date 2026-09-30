@@ -15,3 +15,18 @@ def run_silver_job(spark):
     row_counts = silver_row_counts(spark)
     logger.info("Silver job completed for catalog %s", config.CATALOG_NAME)
     return {"dq_summary": summary, "silver_row_counts": row_counts}
+
+
+def main():
+    """Create or reuse Spark and run the silver job as a Python task."""
+    from pyspark.sql import SparkSession
+
+    spark = SparkSession.builder.getOrCreate()
+    results = run_silver_job(spark)
+    logger.info("Silver DQ summary: %s", results["dq_summary"])
+    logger.info("Silver row counts: %s", results["silver_row_counts"])
+    return results
+
+
+if __name__ == "__main__":
+    main()

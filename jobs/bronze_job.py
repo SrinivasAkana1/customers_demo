@@ -12,3 +12,17 @@ def run_bronze_job(spark):
     logger.info("Starting bronze job for catalog %s", CATALOG_NAME)
     loader = BronzeLoader(spark, type("Config", (), {"CATALOG_NAME": CATALOG_NAME, "BRONZE_TABLES": BRONZE_TABLES})())
     return loader.run()
+
+
+def main():
+    """Create or reuse Spark and run the bronze job as a Python task."""
+    from pyspark.sql import SparkSession
+
+    spark = SparkSession.builder.getOrCreate()
+    results = run_bronze_job(spark)
+    logger.info("Bronze job results: %s", results)
+    return results
+
+
+if __name__ == "__main__":
+    main()
