@@ -32,7 +32,8 @@ customers_demo/
 ├── notebooks/
 │   ├── 01_customers_demo_s3_to_bronze.py
 │   ├── 02_bronze_with_dqrules_silver.py
-│   └── 03_silver_tables.py
+│   ├── 03_silver_tables.py
+│   └── 04_silver_to_neo4j.py
 ├── tests/
 │   └── test_bronze_loader.py
 ├── .gitignore
@@ -79,7 +80,10 @@ Execute these files in order:
 notebooks/01_customers_demo_s3_to_bronze.py
 notebooks/02_bronze_with_dqrules_silver.py
 notebooks/03_silver_tables.py
+notebooks/04_silver_to_neo4j.py
 ```
+
+Notebook 04 requires a reachable Neo4j Aura endpoint and Databricks secrets named `neo4j/uri`, `neo4j/username`, and `neo4j/password`. It loads configured silver rows as Neo4j nodes and creates relationships only from matching silver keys.
 
 Each notebook entry point expects a live `spark` session and calls the shared package logic instead of duplicating SQL inline.
 
