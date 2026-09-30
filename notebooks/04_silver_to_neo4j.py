@@ -12,9 +12,7 @@
 # MAGIC
 # MAGIC Silver rows become `Customer`, `Agent`, `CallType`, `AgentEvent`, `Recovery`, and `Call` nodes.
 # MAGIC Relationships are created only from matching keys present in the silver data. Customer-to-call and customer-to-recovery links are not fabricated because these tables do not provide a customer key.
-
 # COMMAND ----------
-
 # MAGIC %pip install neo4j
 
 # COMMAND ----------
