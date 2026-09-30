@@ -28,7 +28,9 @@ customers_demo/
 │   └── bronze_loader.py
 ├── jobs/
 │   ├── __init__.py
-│   └── bronze_job.py
+│   ├── bronze_job.py
+│   ├── silver_job.py
+│   └── neo4j_job.py
 ├── notebooks/
 │   ├── 01_customers_demo_s3_to_bronze.py
 │   ├── 02_bronze_with_dqrules_silver.py
@@ -83,7 +85,9 @@ notebooks/03_silver_tables.py
 notebooks/04_silver_to_neo4j.py
 ```
 
-Notebook 04 requires a reachable Neo4j Aura endpoint and Databricks secrets named `neo4j/uri`, `neo4j/username`, and `neo4j/password`. It loads configured silver rows as Neo4j nodes and creates relationships only from matching silver keys.
+To schedule the Neo4j load, configure a Databricks Python file task for `jobs/neo4j_job.py` after the silver job. Add the `neo4j` Python driver as a task or cluster dependency, and create the Databricks secret scope `neo4j` with the rotated Aura password stored under key `password`. The job uses the Aura URI and username configured in the file, loads all configured silver rows as nodes, and creates relationships only from matching silver keys. It uses `MERGE` and does not clear the graph.
+
+Notebook 04 is also available for interactive runs from a Databricks Git folder.
 
 Each notebook entry point expects a live `spark` session and calls the shared package logic instead of duplicating SQL inline.
 
