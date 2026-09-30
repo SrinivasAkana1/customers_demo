@@ -16,21 +16,46 @@ customers_demo/
 │   ├── ingest.py
 │   ├── quality.py
 │   └── access.py
+├── configs/
+│   ├── __init__.py
+│   └── source_config.py
+├── framework/
+│   ├── __init__.py
+│   ├── logger.py
+│   └── audit_logger.py
+├── ingestion/
+│   ├── __init__.py
+│   └── bronze_loader.py
+├── jobs/
+│   ├── __init__.py
+│   └── bronze_job.py
 ├── notebooks/
 │   ├── 01_customers_demo_s3_to_bronze.py
 │   ├── 02_bronze_with_dqrules_silver.py
 │   └── 03_silver_tables.py
-└── .gitignore
+├── tests/
+│   └── test_bronze_loader.py
+├── .gitignore
+└── .venv/
 ```
 
 ## Reusable Python framework
 
-The reusable logic lives under the `customers_demo` package:
+This project uses a hybrid pattern so it stays both reusable and reviewer-friendly:
+
+- `customers_demo/` — original installable package for versioned library usage
+- `configs/` — centralized source and catalog configuration
+- `framework/` — shared logging and execution helpers
+- `ingestion/` — bronze loader class and table ingestion logic
+- `jobs/` — entry-point runners such as `run_bronze_job`
+
+The main reusable runtime pieces are:
 
 - `customers_demo.config` — centralized configuration and table metadata
 - `customers_demo.ingest` — bronze catalog creation, S3 ingestion, and validation
 - `customers_demo.quality` — DQ checks and silver-layer transformations
 - `customers_demo.access` — user access and grant management
+- `ingestion.bronze_loader.BronzeLoader` — modular bronze job object aligned with a framework-style runner pattern
 
 ## Install locally
 

@@ -11,3 +11,4 @@ customers_demo.egg-info/SOURCES.txt
 customers_demo.egg-info/dependency_links.txt
 customers_demo.egg-info/requires.txt
 customers_demo.egg-info/top_level.txt
+tests/test_bronze_loader.py
