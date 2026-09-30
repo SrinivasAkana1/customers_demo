@@ -1,0 +1,81 @@
+Metadata-Version: 2.4
+Name: customers-demo
+Version: 0.1.0
+Summary: Reusable Python framework for the customers_demo lakehouse pipeline
+Requires-Python: >=3.9
+Description-Content-Type: text/markdown
+Provides-Extra: databricks
+Requires-Dist: pyspark>=3.5.0; extra == "databricks"
+
+# Customers Demo Lakehouse Pipeline
+
+This repository packages the Databricks pipeline logic for the `customers_demo` lakehouse into a reusable Python framework that can be run in Databricks or imported into other Python jobs.
+
+## Repository structure
+
+```text
+customers_demo/
+├── README.md
+├── pyproject.toml
+├── requirements.txt
+├── customers_demo/
+│   ├── __init__.py
+│   ├── __main__.py
+│   ├── config.py
+│   ├── ingest.py
+│   ├── quality.py
+│   └── access.py
+├── notebooks/
+│   ├── 01_customers_demo_s3_to_bronze.py
+│   ├── 02_bronze_with_dqrules_silver.py
+│   └── 03_silver_tables.py
+└── .gitignore
+```
+
+## Reusable Python framework
+
+The reusable logic lives under the `customers_demo` package:
+
+- `customers_demo.config` — centralized configuration and table metadata
+- `customers_demo.ingest` — bronze catalog creation, S3 ingestion, and validation
+- `customers_demo.quality` — DQ checks and silver-layer transformations
+- `customers_demo.access` — user access and grant management
+
+## Install locally
+
+For a standard local Python environment, install the package without pulling Spark dependencies:
+
+```bash
+python -m pip install -e . --no-deps
+```
+
+If you are running in Databricks or another Spark-enabled environment, install the optional Databricks dependencies as well:
+
+```bash
+python -m pip install -e .[databricks]
+```
+
+## Run in Databricks
+
+Execute these files in order:
+
+```text
+notebooks/01_customers_demo_s3_to_bronze.py
+notebooks/02_bronze_with_dqrules_silver.py
+notebooks/03_silver_tables.py
+```
+
+Each notebook entry point expects a live `spark` session and calls the shared package logic instead of duplicating SQL inline.
+
+## Prerequisites
+
+- Databricks cluster with Spark enabled
+- Access to the S3 bucket `s3://customers-demo-data/`
+- Storage credential `assurant-s3-credential`
+- Metastore/admin permissions for catalog and external location creation
+
+## Notes
+
+- Bronze ingestion loads raw CSVs from S3 into Delta tables in the `customers_demo.bronze` schema.
+- Silver processing drops rows where any business-critical field is null.
+- Access management helper functions can be reused for team grants and validation.

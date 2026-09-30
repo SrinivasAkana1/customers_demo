@@ -1,0 +1,19 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "customers-demo"
+version = "0.1.0"
+description = "Reusable Python framework for the customers_demo lakehouse pipeline"
+readme = "README.md"
+requires-python = ">=3.9"
+dependencies = []
+
+[project.optional-dependencies]
+databricks = [
+    "pyspark>=3.5.0",
+]
+
+[tool.setuptools]
+packages = ["customers_demo"]

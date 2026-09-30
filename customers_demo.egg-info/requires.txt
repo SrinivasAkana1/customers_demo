@@ -1,0 +1,3 @@
+
+[databricks]
+pyspark>=3.5.0

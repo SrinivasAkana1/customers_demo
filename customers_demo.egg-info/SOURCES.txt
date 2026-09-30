@@ -1,0 +1,13 @@
+README.md
+pyproject.toml
+customers_demo/__init__.py
+customers_demo/__main__.py
+customers_demo/access.py
+customers_demo/config.py
+customers_demo/ingest.py
+customers_demo/quality.py
+customers_demo.egg-info/PKG-INFO
+customers_demo.egg-info/SOURCES.txt
+customers_demo.egg-info/dependency_links.txt
+customers_demo.egg-info/requires.txt
+customers_demo.egg-info/top_level.txt
