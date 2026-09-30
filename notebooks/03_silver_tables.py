@@ -10,3 +10,6 @@ else:
     raise RuntimeError(
         "A live Spark session is required. Run this file in Databricks or provide a SparkSession named 'spark'."
     )
+
+
+

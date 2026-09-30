@@ -22,7 +22,8 @@ BRONZE_TABLES = {
     "terminate_calls": "s3://customers-demo-data/raw/Terminate_call_stage/",
 }
 
-DQ_RULE = "Drop rows with NULL in any business column"
+DQ_RULE = "Drop rows with NULL in business columns unless the source is temporarily exempted"
+DQ_NULL_EXEMPT_TABLES = {"customers_demo.bronze.terminate_calls"}
 
 DQ_TABLES = [
     (

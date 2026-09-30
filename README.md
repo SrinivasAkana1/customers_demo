@@ -101,5 +101,5 @@ Each notebook entry point expects a live `spark` session and calls the shared pa
 ## Notes
 
 - Bronze ingestion loads raw CSVs from S3 into Delta tables in the `customers_demo.bronze` schema.
-- Silver processing drops rows where any business-critical field is null.
+- Silver processing drops rows where any configured business field is null. `terminate_calls` is temporarily exempt and retains rows with nulls while still reporting their count.
 - Access management helper functions can be reused for team grants and validation.

@@ -11,8 +11,12 @@ def apply_dq_to_silver(spark):
         total = df.count()
         null_condition = " OR ".join([f"`{col}` IS NULL" for col in business_columns])
         null_count = df.filter(null_condition).count()
-        clean_rows = total - null_count
-        df_clean = df.dropna(subset=business_columns)
+        if bronze_table in config.DQ_NULL_EXEMPT_TABLES:
+            clean_rows = total
+            df_clean = df
+        else:
+            clean_rows = total - null_count
+            df_clean = df.dropna(subset=business_columns)
         df_clean.write.mode("overwrite").option("overwriteSchema", "true").saveAsTable(silver_table)
         silver_count = spark.table(silver_table).count()
         summary.append((bronze_table, total, null_count, clean_rows, silver_count))
