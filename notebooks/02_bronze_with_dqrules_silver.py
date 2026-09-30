@@ -1,12 +1,11 @@
 """Silver transformation entry point for customers_demo."""
 
-from customers_demo.quality import apply_dq_to_silver, silver_row_counts
+from jobs.silver_job import run_silver_job
 
 if "spark" in globals():
-    spark.sql("CREATE SCHEMA IF NOT EXISTS customers_demo.silver")
-    summary = apply_dq_to_silver(spark)
-    print("DQ summary:", summary)
-    print("Silver row counts:", silver_row_counts(spark))
+    results = run_silver_job(spark)
+    print("DQ summary:", results["dq_summary"])
+    print("Silver row counts:", results["silver_row_counts"])
 else:
     raise RuntimeError(
         "A live Spark session is required. Run this file in Databricks or provide a SparkSession named 'spark'."
