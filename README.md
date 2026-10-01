@@ -71,7 +71,7 @@ python -m pip install -e . --no-deps
 If you are running in Databricks or another Spark-enabled environment, install the optional Databricks dependencies as well:
 
 ```bash
-python -m pip install -e .[databricks]
+python -m pip install -e ".[databricks,neo4j]"
 ```
 
 ## Run in Databricks
@@ -82,11 +82,11 @@ Upload the configured CSV folders under the S3 `raw/` prefix. To run bronze and 
 framework/pipeline.py
 ```
 
-The framework entry point runs the bronze load first and starts the all-as-is silver copy only after bronze succeeds. Notebooks 01 and 02 remain available for manual stage-by-stage runs.
+The framework entry point runs bronze, copies every row and column to silver without null filtering, then loads the graph to Neo4j Aura. A failed stage prevents later stages from running. Notebooks 01 and 02 remain available for manual stage-by-stage runs.
 
-Neo4j loading is not part of this framework entry point. The Neo4j jobs still use the earlier call-center mapping and need an updated schema/key mapping before running against the new insurance tables.
+For the single Databricks task, install the `neo4j` driver (for example, the `neo4j` optional dependency) and create the secret scope `neo4j` with the rotated Aura password under key `password`. The graph job uses the relationship mapping documented in `DQrules.md` and validates the declared one-to-one route-call/termination relationship.
 
-Notebook 04 is also available for interactive runs from a Databricks Git folder.
+Notebook 04 is the earlier call-center graph demo; use `framework/pipeline.py` for the current insurance and interaction graph mapping.
 
 Notebook 01 loads all 13 configured S3 prefixes into bronze. Notebook 02 copies every bronze table and column to silver without null filtering. The obsolete `customers_demo.bronze.customers` and `customers_demo.silver.customers` tables are dropped when their corresponding layer runs; this does not delete S3 objects.
 
