@@ -84,7 +84,7 @@ framework/pipeline.py
 
 The framework entry point runs bronze, copies every row and column to silver without null filtering, then loads the graph to Neo4j Aura. A failed stage prevents later stages from running. Notebooks 01 and 02 remain available for manual stage-by-stage runs.
 
-For the single Databricks task, install the `neo4j` driver (for example, the `neo4j` optional dependency) and create the secret scope `neo4j` with the rotated Aura password under key `password`. The graph job uses the relationship mapping documented in `DQrules.md` and validates the declared one-to-one route-call/termination relationship.
+For the single Databricks task, install the `neo4j` driver (for example, the `neo4j` optional dependency) and create the secret scope `neo4j` with the rotated Aura password under key `password`. Grant `READ` on that scope to the job's **Run as** identity. The framework checks the secret and Aura connectivity before loading S3 data. The graph job uses the relationship mapping documented in `DQrules.md` and validates the declared one-to-one route-call/termination relationship.
 
 Notebook 04 is the earlier call-center graph demo; use `framework/pipeline.py` for the current insurance and interaction graph mapping.
 

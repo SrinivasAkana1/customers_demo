@@ -239,6 +239,23 @@ def run_neo4j_job(spark, password):
     }
 
 
+def verify_neo4j_connection(password):
+    """Check Neo4j Aura credentials and network access before data loads begin."""
+    if not password:
+        raise ValueError("Neo4j password is empty; check the Databricks secret value.")
+
+    from neo4j import GraphDatabase
+
+    driver = GraphDatabase.driver(
+        NEO4J_URI,
+        auth=(NEO4J_USERNAME, password),
+    )
+    try:
+        driver.verify_connectivity()
+    finally:
+        driver.close()
+
+
 def main():
     """Run as a Databricks Python file task."""
     from pyspark.sql import SparkSession
@@ -255,7 +272,14 @@ def get_neo4j_password(spark):
     """Read the Neo4j password from the configured Databricks secret scope."""
     from pyspark.dbutils import DBUtils
 
-    return DBUtils(spark).secrets.get(scope=NEO4J_SCOPE, key=NEO4J_PASSWORD_KEY)
+    try:
+        return DBUtils(spark).secrets.get(scope=NEO4J_SCOPE, key=NEO4J_PASSWORD_KEY)
+    except Exception as exc:
+        raise RuntimeError(
+            "Cannot read Neo4j credentials. Create Databricks secret "
+            f"scope '{NEO4J_SCOPE}' with key '{NEO4J_PASSWORD_KEY}' and grant READ "
+            "permission to the job's Run as identity."
+        ) from exc
 
 
 if __name__ == "__main__":

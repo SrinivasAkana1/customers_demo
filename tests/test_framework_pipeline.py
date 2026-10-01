@@ -28,6 +28,7 @@ def test_run_pipeline_executes_bronze_before_silver(monkeypatch):
     monkeypatch.setattr(pipeline, "run_bronze_pipeline", run_bronze)
     monkeypatch.setattr(pipeline, "copy_bronze_to_silver", run_silver)
     monkeypatch.setattr(pipeline, "run_neo4j_job", run_neo4j)
+    monkeypatch.setattr(pipeline, "verify_neo4j_connection", lambda password: None)
 
     result = pipeline.run_pipeline(spark, "test-password")
 
@@ -52,13 +53,24 @@ def test_run_pipeline_retrieves_secret_after_silver(monkeypatch):
     )
     monkeypatch.setattr(
         pipeline,
+        "verify_neo4j_connection",
+        lambda password: calls.append(("verify_connection", password)),
+    )
+    monkeypatch.setattr(
+        pipeline,
         "run_neo4j_job",
         lambda _, password: calls.append(("neo4j", password)) or {"loaded": True},
     )
 
     pipeline.run_pipeline(spark)
 
-    assert calls == ["bronze", "silver", "get_password", ("neo4j", "secret-value")]
+    assert calls == [
+        "get_password",
+        ("verify_connection", "secret-value"),
+        "bronze",
+        "silver",
+        ("neo4j", "secret-value"),
+    ]
 
 
 def test_neo4j_mapping_covers_all_configured_silver_tables():
