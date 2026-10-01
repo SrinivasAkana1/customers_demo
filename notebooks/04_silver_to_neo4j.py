@@ -2,7 +2,7 @@
 # MAGIC %md
 # MAGIC # Silver to Neo4j
 # MAGIC
-# MAGIC Loads every configured Unity Catalog silver row as a Neo4j node and writes all source columns as node properties.
+# MAGIC Loads mapped Unity Catalog silver tables as Neo4j nodes and writes all source columns as node properties.
 # MAGIC Re-runs use `MERGE`, so existing nodes are updated rather than duplicated. This notebook does not delete existing graph data.
 # MAGIC
 # MAGIC Before running:
@@ -10,7 +10,7 @@
 # MAGIC - This notebook uses the Aura endpoint and username configured below. A Neo4j Desktop address such as `127.0.0.1` is local to your computer and is not reachable from the Databricks cluster.
 # MAGIC - Run notebooks 01 and 02 first so the silver tables exist.
 # MAGIC
-# MAGIC Silver rows become `Customer`, `Agent`, `CallType`, `AgentEvent`, `Recovery`, and `Call` nodes.
+# MAGIC The current graph mapping supports `Agent`, `CallType`, `AgentEvent`, `Recovery`, and `Call`. New insurance tables, including `party`, require explicit node keys and relationship mappings before they can be loaded here.
 # MAGIC Relationships are created only from matching keys present in the silver data. Customer-to-call and customer-to-recovery links are not fabricated because these tables do not provide a customer key.
 # COMMAND ----------
 # MAGIC %pip install neo4j
@@ -41,6 +41,11 @@ NODE_CONFIG = {
     "route_call_details": ("Recovery", "RecoveryKey"),
     "terminate_calls": ("Call", "RCalKey"),
 }
+GRAPH_TABLES = [
+    (table_name, short_name)
+    for table_name, short_name in config.SILVER_TABLES
+    if short_name in NODE_CONFIG
+]
 
 driver = GraphDatabase.driver(NEO4J_URI, auth=(NEO4J_USERNAME, NEO4J_PASSWORD))
 driver.verify_connectivity()
@@ -121,7 +126,7 @@ def _load_relationship(session, dataframe, query):
 # COMMAND ----------
 
 with driver.session(database=NEO4J_DATABASE) as session:
-    for table_name, short_name in config.SILVER_TABLES:
+    for table_name, short_name in GRAPH_TABLES:
         label, _ = NODE_CONFIG[short_name]
         constraint_name = f"{label.lower()}_id_unique"
         session.run(
@@ -130,7 +135,7 @@ with driver.session(database=NEO4J_DATABASE) as session:
         ).consume()
 
     load_summary = []
-    for table_name, short_name in config.SILVER_TABLES:
+    for table_name, short_name in GRAPH_TABLES:
         label, key_column = NODE_CONFIG[short_name]
         dataframe = spark.table(table_name)
         if key_column not in dataframe.columns:
@@ -229,9 +234,9 @@ with driver.session(database=NEO4J_DATABASE) as session:
 
 # COMMAND ----------
 
-# Check graph node counts from this notebook's six silver tables.
+# Check graph node counts for tables with configured graph mappings.
 with driver.session(database=NEO4J_DATABASE) as session:
-    for _, short_name in config.SILVER_TABLES:
+    for _, short_name in GRAPH_TABLES:
         label, _ = NODE_CONFIG[short_name]
         count = session.run(
             f"MATCH (node:{label}) RETURN count(node) AS count"

@@ -4,7 +4,7 @@ from jobs.silver_job import run_silver_job
 
 if "spark" in globals():
     results = run_silver_job(spark)
-    print("DQ summary:", results["dq_summary"])
+    print("Silver load summary:", results["load_summary"])
     print("Silver row counts:", results["silver_row_counts"])
 else:
     raise RuntimeError(

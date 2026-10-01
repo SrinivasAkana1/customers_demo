@@ -3,30 +3,31 @@
 from customers_demo import config
 
 
-def apply_dq_to_silver(spark):
-    """Apply a null-drop DQ rule and write clean rows to the silver layer."""
+def copy_bronze_to_silver(spark):
+    """Copy every configured bronze table to silver without filtering rows or columns."""
     summary = []
-    for bronze_table, silver_table, business_columns in config.DQ_TABLES:
-        df = spark.table(bronze_table).select(*business_columns)
-        total = df.count()
-        null_condition = " OR ".join([f"`{col}` IS NULL" for col in business_columns])
-        null_count = df.filter(null_condition).count()
-        if bronze_table in config.DQ_NULL_EXEMPT_TABLES:
-            clean_rows = total
-            df_clean = df
-        else:
-            clean_rows = total - null_count
-            df_clean = df.dropna(subset=business_columns)
-        df_clean.write.mode("overwrite").option("overwriteSchema", "true").saveAsTable(silver_table)
+    for table_name in config.OBSOLETE_SILVER_TABLES:
+        spark.sql(f"DROP TABLE IF EXISTS {table_name}")
+
+    for table_name in config.BRONZE_TABLES:
+        bronze_table = f"{config.CATALOG_NAME}.bronze.{table_name}"
+        silver_table = f"{config.CATALOG_NAME}.silver.{table_name}"
+        df = spark.table(bronze_table)
+        bronze_count = df.count()
+        df.write.mode("overwrite").option("overwriteSchema", "true").saveAsTable(silver_table)
         silver_count = spark.table(silver_table).count()
-        summary.append((bronze_table, total, null_count, clean_rows, silver_count))
+        summary.append((bronze_table, silver_table, bronze_count, silver_count))
     return summary
+
+
+def apply_dq_to_silver(spark):
+    """Compatibility wrapper; this pipeline currently copies rows without DQ filtering."""
+    return copy_bronze_to_silver(spark)
 
 
 def summarize_dq(spark):
-    """Return a summary DataFrame payload for the DQ process."""
-    summary = apply_dq_to_silver(spark)
-    return summary
+    """Compatibility wrapper returning the bronze-to-silver copy summary."""
+    return copy_bronze_to_silver(spark)
 
 
 def silver_row_counts(spark):

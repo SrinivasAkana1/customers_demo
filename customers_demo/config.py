@@ -14,89 +14,25 @@ AUTHORIZED_USERS = [
 ]
 
 BRONZE_TABLES = {
-    "customers": "s3://customers-demo-data/raw/Custmr_Stg/",
-    "agents": "s3://customers-demo-data/raw/Agnt/",
     "agent_event_details": "s3://customers-demo-data/raw/Agnt_Evnt_Detl_Stage/",
+    "agents": "s3://customers-demo-data/raw/Agnt_Stage/",
     "call_types": "s3://customers-demo-data/raw/CallTyp_Stage/",
+    "claim_payment": "s3://customers-demo-data/raw/Claim_Payment_Stage/",
+    "coverage": "s3://customers-demo-data/raw/Coverage_Stage/",
+    "fact_claim": "s3://customers-demo-data/raw/Fact_Claim_Stage/",
+    "fact_service_request": "s3://customers-demo-data/raw/Fact_Service_req_Stage/",
+    "party": "s3://customers-demo-data/raw/Party_Stage/",
+    "policy": "s3://customers-demo-data/raw/Plcy_Stage/",
+    "product": "s3://customers-demo-data/raw/Prdct_Stage/",
     "route_call_details": "s3://customers-demo-data/raw/Rout_Call_Detl_stage/",
+    "service_request": "s3://customers-demo-data/raw/Service_req_Stage/",
     "terminate_calls": "s3://customers-demo-data/raw/Terminate_call_stage/",
 }
 
-DQ_RULE = "Drop rows with NULL in business columns unless the source is temporarily exempted"
-DQ_NULL_EXEMPT_TABLES = {"customers_demo.bronze.terminate_calls"}
-
-DQ_TABLES = [
-    (
-        "customers_demo.bronze.agent_event_details",
-        "customers_demo.silver.agent_event_details",
-        ["RKey", "Date_Time", "STID", "DomID", "ReCode", "Duration"],
-    ),
-    (
-        "customers_demo.bronze.agents",
-        "customers_demo.silver.agents",
-        ["TID", "PID", "EntName"],
-    ),
-    (
-        "customers_demo.bronze.call_types",
-        "customers_demo.silver.call_types",
-        ["CTID", "EName", "Description", "SLT"],
-    ),
-    (
-        "customers_demo.bronze.customers",
-        "customers_demo.silver.customers",
-        ["first_name", "last_name", "email", "gender", "Mobile", "Address", "State"],
-    ),
-    (
-        "customers_demo.bronze.route_call_details",
-        "customers_demo.silver.route_call_details",
-        [
-            "RecoveryKey",
-            "DateTime",
-            "RouterCallKey",
-            "RouterCallKeyDay",
-            "MRDomainID",
-            "CallTypeID",
-            "ScriptID",
-            "SkillGroupSkillTargetID",
-            "Label",
-            "RouteDispositionCode",
-        ],
-    ),
-    (
-        "customers_demo.bronze.terminate_calls",
-        "customers_demo.silver.terminate_calls",
-        [
-            "RKey",
-            "DateTime",
-            "RCalKey",
-            "RouterCallKeyDay",
-            "MRDomID",
-            "PeriprealD",
-            "SGroupSTID",
-            "AgntSkllTrgtID",
-            "CTID",
-            "CallDisposition",
-            "CallDispositionFlag",
-            "Duration",
-            "RingTime",
-            "DelayTime",
-            "HoldTime",
-            "TalkTime",
-            "WorkTime",
-            "LocalQTime",
-            "AnsWaitTime",
-            "AnsweredWithinSL",
-            "CTCategoryID",
-            "NetworkTime",
-        ],
-    ),
-]
+OBSOLETE_BRONZE_TABLES = ["customers_demo.bronze.customers"]
+OBSOLETE_SILVER_TABLES = ["customers_demo.silver.customers"]
 
 SILVER_TABLES = [
-    ("customers_demo.silver.agent_event_details", "agent_event_details"),
-    ("customers_demo.silver.agents", "agents"),
-    ("customers_demo.silver.call_types", "call_types"),
-    ("customers_demo.silver.customers", "customers"),
-    ("customers_demo.silver.route_call_details", "route_call_details"),
-    ("customers_demo.silver.terminate_calls", "terminate_calls"),
+    (f"{CATALOG_NAME}.silver.{table_name}", table_name)
+    for table_name in BRONZE_TABLES
 ]

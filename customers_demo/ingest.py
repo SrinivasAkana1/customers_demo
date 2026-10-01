@@ -46,7 +46,10 @@ def reset_raw_data_table(spark):
 
 
 def load_bronze_tables(spark):
-    """Load all source files from S3 into bronze tables."""
+    """Load all configured source folders from S3 into bronze tables."""
+    for table_name in config.OBSOLETE_BRONZE_TABLES:
+        spark.sql(f"DROP TABLE IF EXISTS {table_name}")
+
     for table_name, source_path in config.BRONZE_TABLES.items():
         spark.sql(
             f"""

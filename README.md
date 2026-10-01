@@ -76,7 +76,7 @@ python -m pip install -e .[databricks]
 
 ## Run in Databricks
 
-Execute these files in order:
+Upload the configured CSV folders under the S3 `raw/` prefix, then execute these files in order:
 
 ```text
 notebooks/01_customers_demo_s3_to_bronze.py
@@ -89,7 +89,9 @@ To schedule the Neo4j load, configure a Databricks Python file task for `jobs/ne
 
 Notebook 04 is also available for interactive runs from a Databricks Git folder.
 
-Each notebook entry point expects a live `spark` session and calls the shared package logic instead of duplicating SQL inline.
+Notebook 01 loads all 13 configured S3 prefixes into bronze. Notebook 02 copies every bronze table and column to silver without null filtering. The obsolete `customers_demo.bronze.customers` and `customers_demo.silver.customers` tables are dropped when their corresponding layer runs; this does not delete S3 objects.
+
+The Neo4j jobs still use the earlier call-center mapping and need an updated schema/key mapping before running against the new insurance tables.
 
 ## Prerequisites
 
@@ -101,5 +103,5 @@ Each notebook entry point expects a live `spark` session and calls the shared pa
 ## Notes
 
 - Bronze ingestion loads raw CSVs from S3 into Delta tables in the `customers_demo.bronze` schema.
-- Silver processing drops rows where any configured business field is null. `terminate_calls` is temporarily exempt and retains rows with nulls while still reporting their count.
+- Silver processing currently copies bronze rows and columns as-is, including nulls.
 - Access management helper functions can be reused for team grants and validation.
