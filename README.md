@@ -76,22 +76,19 @@ python -m pip install -e .[databricks]
 
 ## Run in Databricks
 
-Upload the configured CSV folders under the S3 `raw/` prefix, then execute these files in order:
+Upload the configured CSV folders under the S3 `raw/` prefix. To run bronze and silver as one job, configure a single Databricks Python file task with this path:
 
 ```text
-notebooks/01_customers_demo_s3_to_bronze.py
-notebooks/02_bronze_with_dqrules_silver.py
-notebooks/03_silver_tables.py
-notebooks/04_silver_to_neo4j.py
+framework/pipeline.py
 ```
 
-To schedule the Neo4j load, configure a Databricks Python file task for `jobs/neo4j_job.py` after the silver job. Add the `neo4j` Python driver as a task or cluster dependency, and create the Databricks secret scope `neo4j` with the rotated Aura password stored under key `password`. The job uses the Aura URI and username configured in the file, loads all configured silver rows as nodes, and creates relationships only from matching silver keys. It uses `MERGE` and does not clear the graph.
+The framework entry point runs the bronze load first and starts the all-as-is silver copy only after bronze succeeds. Notebooks 01 and 02 remain available for manual stage-by-stage runs.
+
+Neo4j loading is not part of this framework entry point. The Neo4j jobs still use the earlier call-center mapping and need an updated schema/key mapping before running against the new insurance tables.
 
 Notebook 04 is also available for interactive runs from a Databricks Git folder.
 
 Notebook 01 loads all 13 configured S3 prefixes into bronze. Notebook 02 copies every bronze table and column to silver without null filtering. The obsolete `customers_demo.bronze.customers` and `customers_demo.silver.customers` tables are dropped when their corresponding layer runs; this does not delete S3 objects.
-
-The Neo4j jobs still use the earlier call-center mapping and need an updated schema/key mapping before running against the new insurance tables.
 
 ## Prerequisites
 
